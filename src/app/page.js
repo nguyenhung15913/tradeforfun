@@ -6,25 +6,34 @@ export default function Home() {
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchCoins() {
-      try {
-        const res = await fetch("http://localhost:3000/api/coins");
-        const data = await res.json();
-        setCoins(data);
-      } catch (error) {
-        console.error("Error fetching coins:", error);
-      } finally {
-        setLoading(false);
-      }
+  // Fetch coins from backend
+  const fetchCoins = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/coins");
+      const data = await res.json();
+      setCoins(data);
+    } catch (error) {
+      console.error("Error fetching coins:", error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    // Initial fetch
     fetchCoins();
+
+    // Poll every 1 second
+    const interval = setInterval(fetchCoins, 1000);
+
+    // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        🚀 Crypto Market Overview
+        🚀 Live Crypto Market
       </h1>
 
       {loading ? (
