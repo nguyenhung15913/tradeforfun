@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link"; // ✅ import Link for navigation
 
 export default function Home() {
   const [coins, setCoins] = useState([]);
@@ -32,9 +33,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        🚀 Live Crypto Market
-      </h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-3xl font-bold text-center sm:text-left">
+          🚀 Live Crypto Market
+        </h1>
+
+        {/* ✅ Link to Chart page */}
+        <Link
+          href="/Chart"
+          className="mt-4 sm:mt-0 inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded transition-colors"
+        >
+          View Bitcoin Chart
+        </Link>
+      </div>
 
       {loading ? (
         <p className="text-center text-gray-400">Loading coins...</p>
