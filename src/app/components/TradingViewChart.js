@@ -29,7 +29,9 @@ export default function TradingViewChart({ initialSymbol, coinName, coinDesc }) 
 
   const [symbol, setSymbol] = useState(initialSymbol);
   const [resolution, setResolution] = useState("D");
+  const [livePrice, setLivePrice] = useState(null);
 
+  // Create TradingView widget
   const createWidget = (sym, res) => {
     if (!containerRef.current || !window.TradingView) return;
     containerRef.current.innerHTML = "";
@@ -50,6 +52,7 @@ export default function TradingViewChart({ initialSymbol, coinName, coinDesc }) 
     });
   };
 
+  // Load TradingView script
   useEffect(() => {
     let isMounted = true;
     loadTradingViewScript().then(() => {
@@ -60,11 +63,35 @@ export default function TradingViewChart({ initialSymbol, coinName, coinDesc }) 
     };
   }, []);
 
+  // Recreate widget when symbol/resolution changes
   useEffect(() => {
     if (window.TradingView) {
       createWidget(symbol, resolution);
     }
   }, [symbol, resolution]);
+
+  // Live price WebSocket from Binance
+  useEffect(() => {
+    // Extract base symbol for Binance (e.g., BINANCE:BTCUSDT → btcusdt)
+    const match = symbol.match(/BINANCE:(\w+)/i);
+    if (!match) return;
+
+    const pair = match[1].toLowerCase(); // e.g., btcusdt
+    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@trade`);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setLivePrice(parseFloat(data.p)); // trade price
+    };
+
+    ws.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [symbol]);
 
   return (
     <div style={{ display: "grid", gap: "16px" }}>
@@ -73,6 +100,11 @@ export default function TradingViewChart({ initialSymbol, coinName, coinDesc }) 
         <div>
           <h1 style={{ margin: 0, fontSize: "1.8rem", color: "#fff" }}>{coinName}</h1>
           <p style={{ margin: "4px 0", color: "#bbb" }}>{coinDesc}</p>
+          {livePrice && (
+            <p style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#4caf50" }}>
+              Live Price: ${livePrice.toLocaleString()}
+            </p>
+          )}
         </div>
         <Link
           href="/"
@@ -89,6 +121,7 @@ export default function TradingViewChart({ initialSymbol, coinName, coinDesc }) 
         </Link>
       </div>
 
+     
       {/* Chart container */}
       <div
         id="tv-advanced-chart"

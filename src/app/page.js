@@ -46,7 +46,7 @@ export default function Home() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {coins.map((coin) => {
-  const tvSymbol = coin.symbol.toUpperCase() ? "USDT" : `BINANCE:${coin.symbol.toUpperCase()}USDT`;
+  const tvSymbol = coin.symbol.toUpperCase() === "USDT" ? "USDT" : `BINANCE:${coin.symbol.toUpperCase()}USDT`;
   return (
     <div key={coin.id} className="bg-gray-800 rounded-lg shadow-lg p-5 flex flex-col items-center hover:scale-105 transition-transform">
       <img src={coin.image} alt={coin.name} className="w-16 h-16 mb-4" />
